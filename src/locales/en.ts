@@ -510,6 +510,7 @@ export default {
       minIdle: "Minimum Idle Session",
       paddingDefault: "Default",
       paddingRandom: "Random",
+      paddingCustom: "Custom",
     },
     naive: {
       insecureConcurrency: "Insecure Concurrency",

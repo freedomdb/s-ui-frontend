@@ -510,6 +510,7 @@ export default {
       minIdle: "最少閒置工作階段數",
       paddingDefault: "預設",
       paddingRandom: "隨機",
+      paddingCustom: "自訂",
     },
     naive: {
       insecureConcurrency: "不安全並行數",

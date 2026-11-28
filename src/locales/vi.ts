@@ -515,7 +515,8 @@ export default {
       idleTimeout: "Thời gian chờ phiên nhàn rỗi",
       minIdle: "Số phiên nhàn rỗi tối thiểu",
       paddingDefault: "Mặc định",
-      paddingRandom: "Ngẫu nhiên"
+      paddingRandom: "Ngẫu nhiên",
+      paddingCustom: "Tùy chỉnh"
     },
   },
   in: {

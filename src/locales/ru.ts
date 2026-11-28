@@ -515,7 +515,8 @@ export default {
       idleTimeout: "Тайм-аут неактивной сессии",
       minIdle: "Минимум неактивных сессий",
       paddingDefault: "По умолчанию",
-      paddingRandom: "Случайная"
+      paddingRandom: "Случайная",
+      paddingCustom: "Своя"
     },
   },
   in: {

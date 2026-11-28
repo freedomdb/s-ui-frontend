@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { DefaultPaddingScheme, MaxBound, generatePaddingScheme, isDefaultPaddingScheme, paddingSchemeMode } from './paddingScheme'
+import { DefaultPaddingScheme, MaxBound, generatePaddingScheme, isDefaultPaddingScheme, isGeneratedPaddingScheme, paddingSchemeMode } from './paddingScheme'
 
 // A generated scheme must keep the default's shape exactly -- same lines,
 // same segments, same check marks, same fixed sizes -- and move only the
@@ -59,6 +59,32 @@ describe('generatePaddingScheme', () => {
     expect(paddingSchemeMode(['', '  '])).toBe('default')
     expect(paddingSchemeMode([...DefaultPaddingScheme])).toBe('default')
     expect(paddingSchemeMode(generatePaddingScheme())).toBe('random')
-    expect(paddingSchemeMode(['stop=4', '0=20-20'])).toBe('random')
+    expect(paddingSchemeMode(['stop=4', '0=20-20'])).toBe('custom')
+  })
+
+  it('recognizes generated schemes by shape', () => {
+    for (let run = 0; run < 50; run++) {
+      expect(isGeneratedPaddingScheme(generatePaddingScheme())).toBe(true)
+    }
+    expect(isGeneratedPaddingScheme(undefined)).toBe(false)
+    expect(isGeneratedPaddingScheme([])).toBe(false)
+    expect(isGeneratedPaddingScheme(['stop=4', '0=20-20'])).toBe(false)
+  })
+
+  it('reads a hand-edited scheme as custom, not random', () => {
+    // Same line count as a generated scheme, but a range narrowed past
+    // the generator's minimum width: no generator run produces it.
+    const narrowed = [...DefaultPaddingScheme]
+    narrowed[4] = '4=500-510'
+    expect(isGeneratedPaddingScheme(narrowed)).toBe(false)
+    expect(paddingSchemeMode(narrowed)).toBe('custom')
+    // A dropped segment breaks the shape too.
+    const dropped = [...DefaultPaddingScheme]
+    dropped[2] = '2=400-500,c,500-1000'
+    expect(paddingSchemeMode(dropped)).toBe('custom')
+    // A fixed size is handshake-shaped; changing it is a hand edit.
+    const fixed = [...DefaultPaddingScheme]
+    fixed[1] = '0=40-40'
+    expect(paddingSchemeMode(fixed)).toBe('custom')
   })
 })

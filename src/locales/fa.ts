@@ -516,6 +516,7 @@ export default {
       minIdle: "حداقل جلسات غیرفعال",
       paddingDefault: "پیش‌فرض",
       paddingRandom: "تصادفی",
+      paddingCustom: "سفارشی",
     },
   },
   in: {

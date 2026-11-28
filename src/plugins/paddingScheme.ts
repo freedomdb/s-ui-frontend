@@ -85,13 +85,66 @@ export function isDefaultPaddingScheme(lines?: string[]): boolean {
   return lines.every((line, index) => line === DefaultPaddingScheme[index])
 }
 
-// Which side of the form's Default / Random switch a scheme belongs to.
-// An empty field is the default side: leaving the scheme empty means the
-// core default, and it keeps following the library when the library's
-// default changes, so empty must never read as "random".
-export function paddingSchemeMode(lines?: string[]): 'default' | 'random' {
+function splitLine(line: string): [string, string | undefined] {
+  const idx = line.indexOf('=')
+  if (idx < 0) {
+    return [line, undefined]
+  }
+  return [line.slice(0, idx), line.slice(idx + 1)]
+}
+
+// Whether a scheme could have come out of generatePaddingScheme: the
+// default's shape exactly -- same lines, same keys, same segments, same
+// check marks, same fixed sizes -- with only the true ranges moved, each
+// keeping the generator's floor, cap and minimum width. A scheme that
+// breaks the shape was written or edited by hand.
+export function isGeneratedPaddingScheme(lines?: string[]): boolean {
+  if (!lines || lines.length !== DefaultPaddingScheme.length) {
+    return false
+  }
+  return lines.every((line, index) => {
+    const [key, value] = splitLine(line)
+    const [defKey, defValue] = splitLine(DefaultPaddingScheme[index])
+    if (key !== defKey || value === undefined || defValue === undefined) {
+      return false
+    }
+    if (defKey === 'stop') {
+      return line === DefaultPaddingScheme[index]
+    }
+    const segments = value.split(',')
+    const defSegments = defValue.split(',')
+    if (segments.length !== defSegments.length) {
+      return false
+    }
+    return segments.every((segment, segIndex) => {
+      const def = /^(\d+)-(\d+)$/.exec(defSegments[segIndex])
+      if (!def || def[1] === def[2]) {
+        return segment === defSegments[segIndex]
+      }
+      const match = /^(\d+)-(\d+)$/.exec(segment)
+      if (!match) {
+        return false
+      }
+      const lo = Number(match[1])
+      const hi = Number(match[2])
+      const minWidth = Math.max(40, Math.floor((Number(def[2]) - Number(def[1])) / 4))
+      return lo >= 10 && hi <= MaxBound && hi > lo && hi - lo >= minWidth
+    })
+  })
+}
+
+// Which side of the form's Default / Random / Custom switch a scheme
+// belongs to. An empty field is the default side: leaving the scheme
+// empty means the core default, and it keeps following the library when
+// the library's default changes, so empty must never read as "random".
+// A scheme in the generator's shape reads as "random"; anything else was
+// written or edited by hand and reads as "custom".
+export function paddingSchemeMode(lines?: string[]): 'default' | 'random' | 'custom' {
   if (!lines || lines.join('').trim() === '') {
     return 'default'
   }
-  return isDefaultPaddingScheme(lines) ? 'default' : 'random'
+  if (isDefaultPaddingScheme(lines)) {
+    return 'default'
+  }
+  return isGeneratedPaddingScheme(lines) ? 'random' : 'custom'
 }

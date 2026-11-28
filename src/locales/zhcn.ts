@@ -515,7 +515,8 @@ export default {
       idleTimeout: "空闲会话超时",
       minIdle: "最小空闲会话数",
       paddingDefault: "默认",
-      paddingRandom: "随机"
+      paddingRandom: "随机",
+      paddingCustom: "自定义"
     },
   },
   in: {
